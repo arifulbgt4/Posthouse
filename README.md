@@ -59,7 +59,7 @@ npm run dev
 
 _Accept for Authorization_
 
-```
+```js
 {
   "x-auth-iv": _your_generate_iv,
   "x-auth-encrypt": _your_generate_encrypted_key,
@@ -71,7 +71,7 @@ _Accept for Authorization_
 **`body`**
 
 _Send an email_
-```
+```js
 {
   to: _destination_email (e.g. hello@otask.club),
   subject: _email_subject,
@@ -89,7 +89,7 @@ _Send an email_
 **`body`**
 
 _send multiple email_
-```
+```js
 {
   // 'recipients' (Array of emailes )
   recipients: [
@@ -121,7 +121,7 @@ ENCRYPTION_KEY=your-32-byte-encryption-key
 
 **`getKeyFromPassphrase()`**
 
-```
+```js
 import crypto from "crypto";
 
 async function getKeyFromPassphrase() {
@@ -159,7 +159,7 @@ async function getKeyFromPassphrase() {
 
 **`generateEncryptedSecretKey()`**
 
-```
+```js
 import crypto from "crypto";
 import getKeyFromPassphrase from "./getKeyFromPassphrase";
 
