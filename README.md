@@ -15,7 +15,8 @@ git clone git@github.com:topologies1/Posthouse.git
 ```
 <br >
 
-**Create `.env` file at the root** 
+**Create `.env` file at the root**
+
 _edit as you needed_
 ```
 SECRET_KEY=mySecretKey123
@@ -33,6 +34,7 @@ ORIGIN=http://localhost:3000
 <br />
 
 **Commands _>**
+
 _open the repository on your terminal_
 
 Install `node_modules`
@@ -54,6 +56,7 @@ npm run dev
 ****
 
 **`headers`**
+
 _Accept for Authorization_
 
 ```
@@ -66,6 +69,7 @@ _Accept for Authorization_
 <br />
 
 **`body`**
+
 _Send an email_
 ```
 {
@@ -83,6 +87,7 @@ _Send an email_
 <br />
 
 **`body`**
+
 _send multiple email_
 ```
 {
