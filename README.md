@@ -95,7 +95,6 @@ _send multiple email_
   recipients: [
     {
       to: 'example@domain.com',
-      // optional props
       props:{
         name: 'Recipient name' 
       }
