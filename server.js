@@ -31,8 +31,8 @@ app.post("/", authenticate, async (req, res) => {
   return res.status(200).json({ message: `Successfully send email to: ${to}` });
 });
 
-// Endpoint multipal email send
-app.post("/multipal", authenticate, async (req, res) => {
+// Endpoint multiple email send
+app.post("/multiple", authenticate, async (req, res) => {
   const { recipients, subject, template } = req.body;
   if (
     !Array.isArray(recipients) ||
