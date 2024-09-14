@@ -1,23 +1,28 @@
 # Posthouse
 
-send email `>` `@`
+#### post { ... } `>` send email <span style="transform: scale(3);">📧</span>
 
-## Local development
-Clone git repo: `git clone git@github.com:topologies1/Posthouse.git`
+<br />
 
-Install: `npm install`
 
-Run: `npm run dev`
+### Development 
+_____
 
-## `.env` for `development/deployment`
+**Clone Repository**
 
-```.env
-SECRET_KEY=mySecretKey123    # Shared secret key
-ENCRYPTION_KEY=your-32-byte-encryption-key  # Encryption key for AES-256
-PORT=8080
+```
+git clone git@github.com:topologies1/Posthouse.git
+```
+<br >
 
-EMAIL=
-EMAIL_PASS=
+**Create `.env` file at the root** 
+_edit as you needed_
+```
+SECRET_KEY=mySecretKey123
+ENCRYPTION_KEY=your-32-byte-encryption-key
+
+EMAIL=hello@otask.club
+EMAIL_PASS=password123
 EMAIL_HOST=mail.privateemail.com
 EMAIL_PORT=465
 MAX_CAPACITY=50
@@ -25,78 +30,95 @@ MAX_CAPACITY=50
 ORIGIN=http://localhost:3000
 ```
 
-## Send single email from client
+<br />
 
-```js
-async function test() {
-    await fetch("http://localhost:8080", {
-        method: "POST",
-        headers: {
-        "x-auth-iv": iv,
-        "x-auth-encrypt": encryptedSecretKey,
-        "x-auth-tag": authTag,
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-        to: "test-gviftrnnv@srv1.mail-tester.com",
-        subject: "Working subject",
-        // optional props
-        props:{
-            name: 'Recipient name' 
-        }
-        template:
-            "<html><body><h1>Hello Tester</h1><p>This is the text content</p><a href='http://localhost:3000'>Get Started</a></body></html>",
-        }),
-    });
+**Commands _>**
+_open the repository on your terminal_
+
+Install `node_modules`
+```
+npm install
+```
+Run server
+```
+npm run dev
+```
+<br />
+
+**🌐 endpoint 👉  `http://localhost:8080`**
+
+<br />
+
+### Properties of `headers` & `body`
+
+****
+
+**`headers`**
+_Accept for Authorization_
+
+```
+{
+  "x-auth-iv": _your_generate_iv,
+  "x-auth-encrypt": _your_generate_encrypted_key,
+  "x-auth-tag": _your_generate_auth_tag
 }
-test();
 ```
+<br />
 
-## Send multiple email from client
+**`body`**
+_Send an email_
+```
+{
+  to: _destination_email (e.g. hello@otask.club),
+  subject: _email_subject,
+  template: _html_email_template  (e.g. "<html><body><h1>Hello {{name}}</h1><p>This is the text content</p><a href='http://localhost:3000'>Get Started</a></body></html>"),
 
-```js
-async function test() {
-    await fetch("http://localhost:8080/multiple", {
-        method: "POST",
-        headers: {
-        "x-auth-iv": iv,
-        "x-auth-encrypt": encryptedSecretKey,
-        "x-auth-tag": authTag,
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-        recipients: [
-            {
-                to: 'example@domain.com',
-                // optional props
-                props:{
-                    name: 'Recipient name' 
-                }
-            }
-        ],
-        subject: "Working subject",
-        template:
-            "<html><body><h1>Hello Tester</h1><p>This is the text content {{name}}</p><a href='http://localhost:3000'>Get Started</a></body></html>",
-        }),
-    });
+  // optional
+  props:{
+    name: 'Recipient name'
+  },
 }
-test();
+
 ```
+<br />
 
-
-
-## Generate `iv`, `encryptedSecretKey` and `authTag` for authentication
-`.env` for sender
-```js
-SECRET_KEY=mySecretKey123    # Shared secret key
-ENCRYPTION_KEY=your-32-byte-encryption-key  # Encryption key for AES-256
+**`body`**
+_send multiple email_
 ```
+{
+  // 'recipients' (Array of emailes )
+  recipients: [
+    {
+      to: 'example@domain.com',
+      // optional props
+      props:{
+        name: 'Recipient name' 
+      }
+    }
+  ],
+  subject: "Working subject",
+  template:
+      "<html><body><h1>Hello {{name}}</h1><p>This is the text content</p><a href='http://localhost:3000'>Get Started</a></body></html>",
+}
+```
+<br />
 
-`enerateEncryptedSecretKey.js`
-```js
-"use server";
+### Generate `headers` keys for Authorization
+**`x-auth-iv: iv`, `x-auth-encrypt: encrypt`, `x-auth-tag: authTag`**
+****
+
+**Use server's same `.env` value as password!**
+ 
+```
+SECRET_KEY=mySecretKey123
+ENCRYPTION_KEY=your-32-byte-encryption-key
+```
+<br />
+
+**`getKeyFromPassphrase()`**
+
+```
 import crypto from "crypto";
-import { validateRequest } from "~/server/auth";
 
 async function getKeyFromPassphrase() {
   const enc = new TextEncoder();
@@ -127,7 +149,17 @@ async function getKeyFromPassphrase() {
   );
 }
 
-export async function generateEncryptedSecretKey() {
+```
+
+<br />
+
+**`generateEncryptedSecretKey()`**
+
+```
+import crypto from "crypto";
+import getKeyFromPassphrase from "./getKeyFromPassphrase";
+
+async function generateEncryptedSecretKey() {
   const iv = crypto.getRandomValues(new Uint8Array(12)); // AES-GCM IV of 12 bytes
   const key = await getKeyFromPassphrase();
 
@@ -145,14 +177,85 @@ export async function generateEncryptedSecretKey() {
   const authTag = encryptedArray.slice(-16); // Last 16 bytes is the authentication tag
   const encryptedPayload = encryptedArray.slice(0, -16); // Rest is the encrypted data
 
-  // Send encrypted data, IV, and authTag to the server via WebSocket
-
-  return JSON.stringify({
-    encryptedSecretKey: Buffer.from(encryptedPayload).toString("hex"),
+  return {
     iv: Buffer.from(iv).toString("hex"),
-    authTag: Buffer.from(authTag).toString("hex") // Send the auth tag separately
-  });
+    encrypt: Buffer.from(encryptedPayload).toString("hex"),
+    authTag: Buffer.from(authTag).toString("hex")
+  };
 }
 ```
+<br />
 
-#### Your contributions are always appreciated!
+### Post email
+_Post Single or Multiple email_
+****
+
+
+**Post An Email**
+
+```js
+import generateEncryptedSecretKey from "./generateEncryptedSecretKey";
+
+const { iv, encrypt, authTag } = await generateEncryptedSecretKey()
+
+await fetch("http://localhost:8080", {
+  method: "POST",
+  headers: {
+    "x-auth-iv": iv,
+    "x-auth-encrypt": encrypt,
+    "x-auth-tag": authTag,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    to: "hello@otask.club",
+    subject: "Development test subject",
+    // optional props
+    props:{
+      name: 'Recipient name' 
+    },
+    template:
+        "<html><body><h1>Hello {{name}}</h1><p>This is the text content</p><a href='http://localhost:3000'>Get Started</a></body></html>",
+  }),
+});
+```
+<br />
+
+**Post Multiple Email**
+
+```js
+import generateEncryptedSecretKey from "./generateEncryptedSecretKey";
+
+const { iv, encrypt, authTag } = await generateEncryptedSecretKey()
+
+await fetch("http://localhost:8080", {
+  method: "POST",
+  headers: {
+    "x-auth-iv": iv,
+    "x-auth-encrypt": encrypt,
+    "x-auth-tag": authTag,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    recipients: [
+      {
+        to: 'example@domain.com',
+        props:{
+          name: 'Recipient name' 
+        }
+      },
+      {
+        to: 'example2@domain.com',
+        props:{
+          name: 'Otask' 
+        }
+      }
+    ],
+    subject: "Development test subject",
+    template:
+        "<html><body><h1>Hello {{name}}</h1><p>This is the text content</p><a href='http://localhost:3000'>Get Started</a></body></html>",
+  }),
+});
+```
+<br />
+
+#### 🤝 Your contributions are always appreciated!
