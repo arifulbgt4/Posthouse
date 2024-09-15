@@ -13,7 +13,7 @@ function authenticate(req, res, next) {
 
   const decryptedKey = decrypt(encrypt, iv, authTag);
 
-  if (decryptedKey !== process.env.SECRET_KEY) {
+  if (decryptedKey === "failed" || decryptedKey !== process.env.SECRET_KEY) {
     return res.send(401).json({ error: "Unauthorized" });
   }
 

@@ -88,7 +88,7 @@ _Send an email_
 
 **`body`**
 
-_send multiple email_
+_Send multiple email_
 ```js
 {
   // 'recipients' (Array of emailes )
@@ -163,9 +163,16 @@ async function getKeyFromPassphrase() {
 import crypto from "crypto";
 import getKeyFromPassphrase from "./getKeyFromPassphrase";
 
+function getUTCTimestamp() {
+  return Math.floor(new Date().getTime() / 1000); // Unix timestamp in seconds
+}
+
 async function generateEncryptedSecretKey() {
   const iv = crypto.getRandomValues(new Uint8Array(12)); // AES-GCM IV of 12 bytes
   const key = await getKeyFromPassphrase();
+
+  const timestamp = getUTCTimestamp(); // Get the current UTC timestamp
+  const secretWithTimestamp = `${timestamp}:${process.env.SECRET_KEY}`; // Add the timestamp to the secret key
 
   const encryptedData = await crypto.subtle.encrypt(
     {
@@ -173,7 +180,7 @@ async function generateEncryptedSecretKey() {
       iv: iv,
     },
     key,
-    new TextEncoder().encode(process.env.SECRET_KEY)
+    new TextEncoder().encode(secretWithTimestamp)
   );
 
   // Split the encrypted data and tag (16 bytes at the end of the result)
